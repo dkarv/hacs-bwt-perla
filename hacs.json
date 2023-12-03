@@ -1,6 +1,6 @@
 {
-  "name": "Test integration",
+  "name": "BWT Perla Integration",
   "persistent_directory": "keep",
   "zip_release": true,
-  "filename": "test.zip"
+  "filename": "bwt.zip"
 }

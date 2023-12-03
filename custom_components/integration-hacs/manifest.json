@@ -1,9 +1,0 @@
-{
-  "domain": "integration-hacs",
-  "name": "integration-hacs",
-  "documentation": "https://github.com/ludeeus/integration-hacs",
-  "dependencies": [],
-  "codeowners": ["@ludeeus"],
-  "requirements": [],
-  "homeassistant": "0.95.0"
-}
