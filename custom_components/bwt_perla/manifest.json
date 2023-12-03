@@ -5,6 +5,7 @@
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://www.home-assistant.io/integrations/bwt_perla",
+  "issue_tracker": "https://github.com/dkarv/bwt_api/issues",
   "homekit": {},
   "iot_class": "local_polling",
   "requirements": ["bwt_api==0.2.0"],
