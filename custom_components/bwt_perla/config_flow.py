@@ -28,7 +28,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
-    with BwtApi(data[CONF_HOST], data[CONF_CODE]) as api:
+    async with BwtApi(data[CONF_HOST], data[CONF_CODE]) as api:
         await api.get_current_data()
 
     # Return info that you want to store in the config entry.
