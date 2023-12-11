@@ -1,12 +1,12 @@
 {
     "config": {
         "abort": {
-            "already_configured": "Device is already configured"
+            "already_configured": "Gerät ist schon konfiguriert"
         },
         "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
+            "cannot_connect": "Verbindungsproblem",
+            "invalid_auth": "Falsche Zugangsdaten",
+            "unknown": "Unerwarteter Fehler"
         },
         "step": {
             "user": {
@@ -20,31 +20,31 @@
     "entity": {
         "sensor": {
             "customer_service": {
-                "name": "Last service by customer"
+                "name": "Letzter Kunden Service "
             },
             "hardness_in": {
-                "name": "Incoming water hardness"
+                "name": "Wasserhärte vor Gerät"
             },
             "hardness_out": {
-                "name": "Outgoing water hardness"
+                "name": "Wasserhärte nach Gerät"
             },
             "regenerativ_days": {
-                "name": "Days left of regeneration salt"
+                "name": "Tage Regenerationsmittel übrig"
             },
             "regenerativ_level": {
-                "name": "Percentage of regeneration salt"
+                "name": "Regenerationsmittel Prozent"
             },
             "regenerativ_mass": {
-                "name": "Remaining regeneration salt"
+                "name": "Regnerationsmittel gesamt"
             },
             "state": {
-                "name": "State of the machine"
+                "name": "Gerätestatus"
             },
             "technician_service": {
-                "name": "Last service by technician"
+                "name": "Letzter Techniker Service"
             },
             "total_output": {
-                "name": "Total water consumption"
+                "name": "Gesamter Wasserverbrauch"
             }
         }
     }
