@@ -6,10 +6,10 @@
   "dependencies": [],
   "documentation": "https://www.home-assistant.io/integrations/bwt_perla",
   "issue_tracker": "https://github.com/dkarv/bwt_api/issues",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homekit": {},
   "iot_class": "local_polling",
-  "requirements": ["bwt_api==0.2.0"],
+  "requirements": ["bwt_api==0.2.1"],
   "ssdp": [],
   "zeroconf": []
 }
