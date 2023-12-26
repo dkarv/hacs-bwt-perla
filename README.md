@@ -15,3 +15,11 @@ _BWT Perla integration repository for [HACS](https://github.com/custom-component
 * Add this repository as user-defined repository in HACS
 * Setup integration and enter host / ip address and the "Login-Code"
 * Optional: set bwt total output as water source in the energy dashboard
+
+### Get monthly / daily / hourly / per 15 minute / ... water usage
+
+Unfortunately, the BWT API does not hand out these values. You can setup a _Utility Meter_ in Home Assistant to calculate them:
+![step0](https://github.com/dkarv/hacs-bwt-perla/assets/3708591/f93f6c56-245b-42d7-83f4-0c652dd7268b)
+and provide a reset cycle to get daily / ... values:
+![step1](https://github.com/dkarv/hacs-bwt-perla/assets/3708591/880e827b-b11e-4eb6-8f0e-bd683b50c0a2)
+
