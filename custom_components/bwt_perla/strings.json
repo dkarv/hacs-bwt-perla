@@ -20,7 +20,7 @@
   "entity": {
     "sensor": {
       "regenerativ_mass": {
-        "name": "Remaining regeneration salt"
+        "name": "Total regeneration salt ever used"
       },
       "regenerativ_days": {
         "name": "Days left of regeneration salt"
@@ -45,6 +45,26 @@
       },
       "total_output": {
         "name": "Total water consumption"
+      },
+      "holiday_mode_start": {
+        "name": "Future start of holiday mode if available"
+      },
+      "counter_regeneration_1": {
+        "name": "Regeneration counter column 1"
+      },
+      "counter_regeneration_2": {
+        "name": "Regeneration counter column 2"
+      },
+      "last_regeneration_1": {
+        "name": "Last regeneration column 1"
+      },
+      "last_regeneration_2": {
+        "name": "Last regeneration column 2"
+      }
+    },
+    "binary_sensor": {
+      "holiday_mode": {
+        "name": ""
       }
     }
   }

@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from bwt_api.exception import WrongCodeException
 
+from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -51,14 +52,65 @@ async def async_setup_entry(
     async_add_entities(
         [
             TotalOutputSensor(coordinator),
-            HardnessInSensor(coordinator),
-            HardnessOutSensor(coordinator),
-            LastServiceCustomerSensor(coordinator),
-            LastServiceTechnicianSensor(coordinator),
+            SimpleSensor(coordinator, "hardness_in", lambda data: data.in_hardness.dH),
+            SimpleSensor(
+                coordinator, "hardness_out", lambda data: data.out_hardness.dH
+            ),
+            DeviceClassSensor(
+                coordinator,
+                "customer_service",
+                lambda data: data.service_customer,
+                SensorDeviceClass.TIMESTAMP,
+            ),
+            DeviceClassSensor(
+                coordinator,
+                "technician_service",
+                lambda data: data.service_technician,
+                SensorDeviceClass.TIMESTAMP,
+            ),
             StateSensor(coordinator),
-            RegenerativLevelSensor(coordinator),
-            RegenerativDaySensor(coordinator),
-            RegenerativMassSensor(coordinator),
+            UnitSensor(
+                coordinator,
+                "regenerativ_level",
+                lambda data: data.regenerativ_level,
+                PERCENTAGE,
+            ),
+            UnitSensor(
+                coordinator,
+                "regenerativ_days",
+                lambda data: data.regenerativ_days,
+                UnitOfTime.DAYS,
+            ),
+            UnitSensor(
+                coordinator,
+                "regenerativ_mass",
+                lambda data: data.regenerativ_total,
+                UnitOfMass.GRAMS,
+            ),
+            DeviceClassSensor(
+                coordinator,
+                "last_regeneration_1",
+                lambda data: data.regeneration_last_1,
+                SensorDeviceClass.TIMESTAMP,
+            ),
+            DeviceClassSensor(
+                coordinator,
+                "last_regeneration_2",
+                lambda data: data.regeneration_last_2,
+                SensorDeviceClass.TIMESTAMP,
+            ),
+            SimpleSensor(
+                coordinator,
+                "counter_regeneration_1",
+                lambda data: data.regeneration_count_1,
+            ),
+            SimpleSensor(
+                coordinator,
+                "counter_regeneration_2",
+                lambda data: data.regeneration_count_2,
+            ),
+            HolidayModeSensor(coordinator),
+            HolidayStartSensor(coordinator),
         ]
     )
 
@@ -68,14 +120,14 @@ GAUGE_ICON = "mdi:gauge"
 
 
 class TotalOutputSensor(CoordinatorEntity, SensorEntity):
-    """Total water [liter] passing through the output."""
+    """Total water [liter] that passed through the output."""
 
     _attr_icon = WATER_ICON
     _attr_native_unit_of_measurement = UnitOfVolume.LITERS
     _attr_device_class = SensorDeviceClass.WATER
-    _attr_state_class = SensorStateClass.TOTAL
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
 
-    def __init__(self, coordinator):
+    def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
         super().__init__(coordinator)
         self._attr_translation_key = "total_output"
@@ -88,82 +140,48 @@ class TotalOutputSensor(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class HardnessInSensor(CoordinatorEntity, SensorEntity):
-    """Hardness coming into the device."""
+class SimpleSensor(CoordinatorEntity, SensorEntity):
+    """Simplest sensor with least configuration options."""
 
-    # _attr_device_class = SensorDeviceClass.WATER
-
-    def __init__(self, coordinator):
+    def __init__(self, coordinator: BwtCoordinator, key: str, extract) -> None:
         """Initialize the sensor with the common coordinator."""
         super().__init__(coordinator)
-        self._attr_translation_key = "hardness_in"
-        self._attr_unique_id = self._attr_translation_key
+        self._attr_translation_key = key
+        self._attr_unique_id = key
+        self._extract = extract
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        self._attr_native_value = self.coordinator.data.in_hardness.dH
+        self._attr_native_value = self._extract(self.coordinator.data)
         self.async_write_ha_state()
 
 
-class HardnessOutSensor(CoordinatorEntity, SensorEntity):
-    """Hardness of water leaving the device."""
+class DeviceClassSensor(SimpleSensor):
+    """Basic sensor specifying a device class."""
 
-    # _attr_device_class = SensorDeviceClass.WATER
-
-    def __init__(self, coordinator):
-        """Initialize the sensor with the common coordinator."""
-        super().__init__(coordinator)
-        self._attr_translation_key = "hardness_out"
-        self._attr_unique_id = self._attr_translation_key
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        self._attr_native_value = self.coordinator.data.out_hardness.dH
-        self.async_write_ha_state()
+    def __init__(
+        self,
+        coordinator: BwtCoordinator,
+        key: str,
+        extract,
+        device_class: SensorDeviceClass,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, key, extract)
+        self._attr_device_class = device_class
 
 
-class LastServiceCustomerSensor(CoordinatorEntity, SensorEntity):
-    """Last service done by customer."""
+class UnitSensor(SimpleSensor):
+    """Sensor specifying a unit."""
 
-    _attr_device_class = SensorDeviceClass.TIMESTAMP
-
-    def __init__(self, coordinator):
-        """Initialize the sensor with the common coordinator."""
-        super().__init__(coordinator)
-        self._attr_translation_key = "customer_service"
-        self._attr_unique_id = self._attr_translation_key
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        # adjust timezone after response from customer service
-        self._attr_native_value = datetime.strptime(
-            self.coordinator.data.service_customer, "%Y-%m-%d %H:%M:%S"
-        ).replace(tzinfo=ZoneInfo("UTC"))
-        self.async_write_ha_state()
-
-
-class LastServiceTechnicianSensor(CoordinatorEntity, SensorEntity):
-    """Last service done by technician."""
-
-    _attr_device_class = SensorDeviceClass.TIMESTAMP
-
-    def __init__(self, coordinator):
-        """Initialize the sensor with the common coordinator."""
-        super().__init__(coordinator)
-        self._attr_translation_key = "technician_service"
-        self._attr_unique_id = self._attr_translation_key
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        # adjust timezone after response from customer service
-        self._attr_native_value = datetime.strptime(
-            self.coordinator.data.service_technician, "%Y-%m-%d %H:%M:%S"
-        ).replace(tzinfo=ZoneInfo("UTC"))
-        self.async_write_ha_state()
+    def __init__(
+        self, coordinator: BwtCoordinator, key: str, extract, unit: str
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, key, extract)
+        self._attr_native_unit_of_measurement = unit
+        self._attr_state_class = SensorStateClass.MEASUREMENT
 
 
 class StateSensor(CoordinatorEntity, SensorEntity):
@@ -174,7 +192,7 @@ class StateSensor(CoordinatorEntity, SensorEntity):
 
     _attr_device_class = SensorDeviceClass.ENUM
 
-    def __init__(self, coordinator):
+    def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
         super().__init__(coordinator)
         self._attr_translation_key = "state"
@@ -187,58 +205,41 @@ class StateSensor(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class RegenerativLevelSensor(CoordinatorEntity, SensorEntity):
-    """percentage of regenerativ left."""
+class HolidayModeSensor(CoordinatorEntity, BinarySensorEntity):
+    """Current holiday mode state."""
 
-    _attr_native_unit_of_measurement = PERCENTAGE
-    _attr_state_class = SensorStateClass.MEASUREMENT
-
-    def __init__(self, coordinator):
+    def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
         super().__init__(coordinator)
-        self._attr_translation_key = "regenerativ_level"
+        self._attr_translation_key = "holiday_mode"
         self._attr_unique_id = self._attr_translation_key
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        self._attr_native_value = self.coordinator.data.regenerativ_level
+        self._attr_is_on = self.coordinator.data.holiday_mode == 1
         self.async_write_ha_state()
 
 
-class RegenerativDaySensor(CoordinatorEntity, SensorEntity):
-    """days of regenerativ left."""
+class HolidayStartSensor(CoordinatorEntity, SensorEntity):
+    """Future start of holiday mode if active."""
 
-    _attr_native_unit_of_measurement = UnitOfTime.DAYS
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
 
-    def __init__(self, coordinator):
+    def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
         super().__init__(coordinator)
-        self._attr_translation_key = "regenerativ_days"
+        self._attr_translation_key = "holiday_mode_start"
         self._attr_unique_id = self._attr_translation_key
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        self._attr_native_value = self.coordinator.data.regenerativ_days
-        self.async_write_ha_state()
-
-
-class RegenerativMassSensor(CoordinatorEntity, SensorEntity):
-    """mass of regenerativ left."""
-
-    _attr_native_unit_of_measurement = UnitOfMass.GRAMS
-    _attr_state_class = SensorStateClass.MEASUREMENT
-
-    def __init__(self, coordinator):
-        """Initialize the sensor with the common coordinator."""
-        super().__init__(coordinator)
-        self._attr_translation_key = "regenerativ_mass"
-        self._attr_unique_id = self._attr_translation_key
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        self._attr_native_value = self.coordinator.data.regenerativ_total
+        holiday_mode = self.coordinator.data.holiday_mode
+        if holiday_mode > 1:
+            self._attr_native_value = datetime.fromtimestamp(
+                holiday_mode, tz=ZoneInfo("UTC")
+            )
+        else:
+            self._attr_native_value = None
         self.async_write_ha_state()
