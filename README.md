@@ -19,7 +19,10 @@ _BWT Perla integration repository for [HACS](https://github.com/custom-component
 ### Get monthly / daily / hourly / per 15 minute / ... water usage
 
 Unfortunately, the BWT API does not hand out these values. You can setup a _Utility Meter_ in Home Assistant to calculate them:
-![step0](https://github.com/dkarv/hacs-bwt-perla/assets/3708591/f93f6c56-245b-42d7-83f4-0c652dd7268b)
+
+<img src="https://github.com/dkarv/hacs-bwt-perla/assets/3708591/f93f6c56-245b-42d7-83f4-0c652dd7268b" height="256" >
+
 and provide a reset cycle to get daily / ... values:
-![step1](https://github.com/dkarv/hacs-bwt-perla/assets/3708591/880e827b-b11e-4eb6-8f0e-bd683b50c0a2)
+
+<img src="https://github.com/dkarv/hacs-bwt-perla/assets/3708591/880e827b-b11e-4eb6-8f0e-bd683b50c0a2" height="256" >
 
