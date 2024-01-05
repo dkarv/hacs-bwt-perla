@@ -50,8 +50,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 info = await validate_input(self.hass, user_input)
                 return self.async_create_entry(title=info["title"], data=user_input)
             except ConnectException:
+                _LOGGER.exception("Connection error setting up the Bwt Api")
                 errors["base"] = "cannot_connect"
             except WrongCodeException:
+                _LOGGER.exception("Wrong user code passed to bwt api")
                 errors["base"] = "invalid_auth"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
