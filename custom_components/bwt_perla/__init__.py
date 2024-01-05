@@ -1,5 +1,7 @@
 """The BWT Perla integration."""
 
+import logging
+
 from bwt_api.api import BwtApi
 from bwt_api.exception import BwtException
 
@@ -10,6 +12,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import DOMAIN
 
+_LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 
@@ -21,6 +24,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         await api.get_current_data()
     except BwtException as e:
+        _LOGGER.exception("Error setting up Bwt API")
         await api.close()
         raise ConfigEntryNotReady from e
 
