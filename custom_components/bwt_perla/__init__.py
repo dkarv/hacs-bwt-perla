@@ -21,7 +21,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         await api.get_current_data()
     except BwtException as e:
-        api.close()
+        await api.close()
         raise ConfigEntryNotReady from e
 
     hass.data[DOMAIN][entry.entry_id] = api
@@ -35,6 +35,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         api = hass.data[DOMAIN].pop(entry.entry_id)
-        api.close()
+        await api.close()
 
     return unload_ok
