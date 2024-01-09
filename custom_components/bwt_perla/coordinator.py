@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class BwtCoordinator(DataUpdateCoordinator):
-    """Custom coordinator."""
+    """Bwt coordinator."""
 
     def __init__(self, hass: HomeAssistant, my_api: BwtApi) -> None:
         """Initialize my coordinator."""
