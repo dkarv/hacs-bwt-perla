@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 from zoneinfo import ZoneInfo
 
+from bwt_api.data import BwtStatus
 from bwt_api.exception import WrongCodeException
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
@@ -52,6 +53,8 @@ async def async_setup_entry(
     async_add_entities(
         [
             TotalOutputSensor(coordinator),
+            ErrorSensor(coordinator),
+            WarningSensor(coordinator),
             SimpleSensor(coordinator, "hardness_in", lambda data: data.in_hardness.dH),
             SimpleSensor(
                 coordinator, "hardness_out", lambda data: data.out_hardness.dH
@@ -140,6 +143,40 @@ class TotalOutputSensor(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
 
+class ErrorSensor(CoordinatorEntity, SensorEntity):
+    """Errors reported by the device."""
+
+    def __init__(self, coordinator) -> None:
+        """Initialize the sensor with the common coordinator."""
+        super().__init__(coordinator)
+        self._attr_translation_key = "errors"
+        self._attr_unique_id = self._attr_translation_key
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        values = [x.name for x in self.coordinator.data.errors if x.is_fatal()]
+        self._attr_native_value = ",".join(values)
+        self.async_write_ha_state()
+
+
+class WarningSensor(CoordinatorEntity, SensorEntity):
+    """Warnings reported by the device."""
+
+    def __init__(self, coordinator) -> None:
+        """Initialize the sensor with the common coordinator."""
+        super().__init__(coordinator)
+        self._attr_translation_key = "warnings"
+        self._attr_unique_id = self._attr_translation_key
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        values = [x.name for x in self.coordinator.data.errors if not x.is_fatal()]
+        self._attr_native_value = ",".join(values)
+        self.async_write_ha_state()
+
+
 class SimpleSensor(CoordinatorEntity, SensorEntity):
     """Simplest sensor with least configuration options."""
 
@@ -185,12 +222,10 @@ class UnitSensor(SimpleSensor):
 
 
 class StateSensor(CoordinatorEntity, SensorEntity):
-    """State of the machine.
-
-    0=ok, 1=warning, 2=error
-    """
+    """State of the machine."""
 
     _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = list(BwtStatus.__members__)
 
     def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
@@ -201,7 +236,7 @@ class StateSensor(CoordinatorEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        self._attr_native_value = self.coordinator.data.show_error
+        self._attr_native_value = self.coordinator.data.state.name
         self.async_write_ha_state()
 
 

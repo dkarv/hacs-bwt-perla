@@ -31,6 +31,12 @@
       "state": {
         "name": "State of the machine"
       },
+      "errors": {
+        "name": "Active errors"
+      },
+      "warnings": {
+        "name": "Active warnings"
+      },
       "technician_service": {
         "name": "Last service by technician"
       },
