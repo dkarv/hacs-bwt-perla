@@ -1,6 +1,8 @@
-# Custom HA integration for the BWT Perla
+# Custom HACS integration for the BWT Perla
 
 _BWT Perla integration repository for [HACS](https://github.com/custom-components/hacs)._
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=dkarv&repository=hacs-bwt-perla)
 
 ### Requirements
 
