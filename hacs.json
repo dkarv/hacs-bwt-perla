@@ -1,6 +1,3 @@
 {
-  "name": "BWT Perla Integration",
-  "persistent_directory": "keep",
-  "zip_release": true,
-  "filename": "bwt.zip"
+  "name": "BWT Perla Integration"
 }
