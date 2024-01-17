@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 from zoneinfo import ZoneInfo
 
+from bwt_api.api import treated_to_blended
 from bwt_api.data import BwtStatus
 from bwt_api.exception import WrongCodeException
 
@@ -114,6 +115,36 @@ async def async_setup_entry(
             ),
             HolidayModeSensor(coordinator),
             HolidayStartSensor(coordinator),
+            CalculatedSensor(
+                coordinator,
+                "day_output",
+                UnitOfVolume.LITERS,
+                lambda data: data.treated_day,
+            ),
+            CalculatedSensor(
+                coordinator,
+                "month_output",
+                UnitOfVolume.LITERS,
+                lambda data: data.treated_month,
+            ),
+            CalculatedSensor(
+                coordinator,
+                "year_output",
+                UnitOfVolume.LITERS,
+                lambda data: data.treated_year,
+            ),
+            CalculatedSensor(
+                coordinator,
+                "capacity_1",
+                UnitOfVolume.MILLILITERS,
+                lambda data: data.capacity_1,
+            ),
+            CalculatedSensor(
+                coordinator,
+                "capacity_2",
+                UnitOfVolume.MILLILITERS,
+                lambda data: data.capacity_2,
+            ),
         ]
     )
 
@@ -122,13 +153,13 @@ WATER_ICON = "mdi:water"
 GAUGE_ICON = "mdi:gauge"
 
 
-class TotalOutputSensor(CoordinatorEntity, SensorEntity):
+class TotalOutputSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Total water [liter] that passed through the output."""
 
     _attr_icon = WATER_ICON
     _attr_native_unit_of_measurement = UnitOfVolume.LITERS
     _attr_device_class = SensorDeviceClass.WATER
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_state_class = SensorStateClass.TOTAL
 
     def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
@@ -143,7 +174,7 @@ class TotalOutputSensor(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class ErrorSensor(CoordinatorEntity, SensorEntity):
+class ErrorSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Errors reported by the device."""
 
     def __init__(self, coordinator) -> None:
@@ -160,7 +191,7 @@ class ErrorSensor(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class WarningSensor(CoordinatorEntity, SensorEntity):
+class WarningSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Warnings reported by the device."""
 
     def __init__(self, coordinator) -> None:
@@ -177,7 +208,7 @@ class WarningSensor(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class SimpleSensor(CoordinatorEntity, SensorEntity):
+class SimpleSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Simplest sensor with least configuration options."""
 
     def __init__(self, coordinator: BwtCoordinator, key: str, extract) -> None:
@@ -221,7 +252,7 @@ class UnitSensor(SimpleSensor):
         self._attr_state_class = SensorStateClass.MEASUREMENT
 
 
-class StateSensor(CoordinatorEntity, SensorEntity):
+class StateSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """State of the machine."""
 
     _attr_device_class = SensorDeviceClass.ENUM
@@ -240,7 +271,7 @@ class StateSensor(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class HolidayModeSensor(CoordinatorEntity, BinarySensorEntity):
+class HolidayModeSensor(CoordinatorEntity[BwtCoordinator], BinarySensorEntity):
     """Current holiday mode state."""
 
     def __init__(self, coordinator) -> None:
@@ -256,7 +287,7 @@ class HolidayModeSensor(CoordinatorEntity, BinarySensorEntity):
         self.async_write_ha_state()
 
 
-class HolidayStartSensor(CoordinatorEntity, SensorEntity):
+class HolidayStartSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Future start of holiday mode if active."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
@@ -277,4 +308,30 @@ class HolidayStartSensor(CoordinatorEntity, SensorEntity):
             )
         else:
             self._attr_native_value = None
+        self.async_write_ha_state()
+
+
+class CalculatedSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
+    """Sensor calculating blended water from treated water."""
+
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    suggested_display_precision = 0
+    suggested_unit_of_measurement = UnitOfVolume.LITERS
+
+    def __init__(self, coordinator, key: str, unit: UnitOfVolume, extract) -> None:
+        """Initialize the sensor with the common coordinator."""
+        super().__init__(coordinator)
+        self._attr_translation_key = key
+        self._attr_unique_id = self._attr_translation_key
+        self._attr_native_unit_of_measurement = unit
+        self._extract = extract
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self._attr_native_value = treated_to_blended(
+            self._extract(self.coordinator.data),
+            self.coordinator.data.in_hardness.dH,
+            self.coordinator.data.out_hardness.dH,
+        )
         self.async_write_ha_state()
