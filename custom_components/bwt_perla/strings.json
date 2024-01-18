@@ -66,6 +66,21 @@
       },
       "last_regeneration_2": {
         "name": "Last regeneration column 2"
+      },
+      "capacity_1": {
+        "name": "Remaining capacity of column 1"
+      },
+      "capacity_2": {
+        "name": "Remaining capacity of column 1"
+      },
+      "day_output": {
+        "name": "Output of current day"
+      },
+      "month_output": {
+        "name": "Output of current month"
+      },
+      "year_output": {
+        "name": "Output of current year"
       }
     },
     "binary_sensor": {

@@ -119,30 +119,35 @@ async def async_setup_entry(
                 coordinator,
                 "day_output",
                 UnitOfVolume.LITERS,
+                SensorStateClass.TOTAL_INCREASING,
                 lambda data: data.treated_day,
             ),
             CalculatedSensor(
                 coordinator,
                 "month_output",
                 UnitOfVolume.LITERS,
+                SensorStateClass.TOTAL_INCREASING,
                 lambda data: data.treated_month,
             ),
             CalculatedSensor(
                 coordinator,
                 "year_output",
                 UnitOfVolume.LITERS,
+                SensorStateClass.TOTAL_INCREASING,
                 lambda data: data.treated_year,
             ),
             CalculatedSensor(
                 coordinator,
                 "capacity_1",
                 UnitOfVolume.MILLILITERS,
+                SensorStateClass.MEASUREMENT,
                 lambda data: data.capacity_1,
             ),
             CalculatedSensor(
                 coordinator,
                 "capacity_2",
                 UnitOfVolume.MILLILITERS,
+                SensorStateClass.MEASUREMENT,
                 lambda data: data.capacity_2,
             ),
         ]
@@ -314,16 +319,23 @@ class HolidayStartSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
 class CalculatedSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Sensor calculating blended water from treated water."""
 
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
     suggested_display_precision = 0
     suggested_unit_of_measurement = UnitOfVolume.LITERS
 
-    def __init__(self, coordinator, key: str, unit: UnitOfVolume, extract) -> None:
+    def __init__(
+        self,
+        coordinator,
+        key: str,
+        unit: UnitOfVolume,
+        stateClass: SensorStateClass,
+        extract,
+    ) -> None:
         """Initialize the sensor with the common coordinator."""
         super().__init__(coordinator)
         self._attr_translation_key = key
         self._attr_unique_id = self._attr_translation_key
         self._attr_native_unit_of_measurement = unit
+        self._attr_state_class = stateClass
         self._extract = extract
 
     @callback

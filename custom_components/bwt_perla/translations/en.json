@@ -18,9 +18,32 @@
         }
     },
     "entity": {
+        "binary_sensor": {
+            "holiday_mode": {
+                "name": ""
+            }
+        },
         "sensor": {
+            "capacity_1": {
+                "name": "Remaining capacity of column 1"
+            },
+            "capacity_2": {
+                "name": "Remaining capacity of column 1"
+            },
+            "counter_regeneration_1": {
+                "name": "Regeneration counter column 1"
+            },
+            "counter_regeneration_2": {
+                "name": "Regeneration counter column 2"
+            },
             "customer_service": {
                 "name": "Last service by customer"
+            },
+            "day_output": {
+                "name": "Output of current day"
+            },
+            "errors": {
+                "name": "Active errors"
             },
             "hardness_in": {
                 "name": "Incoming water hardness"
@@ -28,14 +51,26 @@
             "hardness_out": {
                 "name": "Outgoing water hardness"
             },
+            "holiday_mode_start": {
+                "name": "Future start of holiday mode if available"
+            },
+            "last_regeneration_1": {
+                "name": "Last regeneration column 1"
+            },
+            "last_regeneration_2": {
+                "name": "Last regeneration column 2"
+            },
+            "month_output": {
+                "name": "Output of current month"
+            },
             "regenerativ_days": {
                 "name": "Days left of regeneration salt"
             },
             "regenerativ_level": {
-                "name": "Percentage of regeneration salt"
+                "name": "Precentage of regeneration salt"
             },
             "regenerativ_mass": {
-                "name": "Remaining regeneration salt"
+                "name": "Total regeneration salt ever used"
             },
             "state": {
                 "name": "State of the machine"
@@ -45,6 +80,12 @@
             },
             "total_output": {
                 "name": "Total water consumption"
+            },
+            "warnings": {
+                "name": "Active warnings"
+            },
+            "year_output": {
+                "name": "Output of current year"
             }
         }
     }
