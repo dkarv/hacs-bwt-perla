@@ -15,7 +15,13 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, UnitOfMass, UnitOfTime, UnitOfVolume
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfMass,
+    UnitOfTime,
+    UnitOfVolume,
+    UnitOfVolumeFlowRate,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -150,6 +156,7 @@ async def async_setup_entry(
                 SensorStateClass.MEASUREMENT,
                 lambda data: data.capacity_2,
             ),
+            CurrentFlowSensor(coordinator),
         ]
     )
 
@@ -164,7 +171,7 @@ class TotalOutputSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     _attr_icon = WATER_ICON
     _attr_native_unit_of_measurement = UnitOfVolume.LITERS
     _attr_device_class = SensorDeviceClass.WATER
-    _attr_state_class = SensorStateClass.TOTAL
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
 
     def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
@@ -176,6 +183,27 @@ class TotalOutputSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         self._attr_native_value = self.coordinator.data.blended_total
+        self.async_write_ha_state()
+
+
+class CurrentFlowSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
+    """Current flow per hour."""
+
+    _attr_native_unit_of_measurement = UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    suggested_display_precision = 3
+
+    def __init__(self, coordinator) -> None:
+        """Initialize the sensor with the common coordinator."""
+        super().__init__(coordinator)
+        self._attr_translation_key = "current_flow"
+        self._attr_unique_id = self._attr_translation_key
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        # HA only has m3 / h, we get the values in l/h
+        self._attr_native_value = self.coordinator.data.current_flow / 1000
         self.async_write_ha_state()
 
 

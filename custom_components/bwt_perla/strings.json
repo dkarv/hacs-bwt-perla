@@ -71,7 +71,7 @@
         "name": "Remaining capacity of column 1"
       },
       "capacity_2": {
-        "name": "Remaining capacity of column 1"
+        "name": "Remaining capacity of column 2"
       },
       "day_output": {
         "name": "Output of current day"
@@ -81,6 +81,9 @@
       },
       "year_output": {
         "name": "Output of current year"
+      },
+      "current_flow": {
+        "name": "Current flow"
       }
     },
     "binary_sensor": {

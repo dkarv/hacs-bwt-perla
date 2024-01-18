@@ -36,6 +36,9 @@
             "counter_regeneration_2": {
                 "name": "Regenerationszähler Säule 2"
             },
+            "current_flow": {
+                "name": "Aktueller Verbrauch"
+            },
             "customer_service": {
                 "name": "Letzter Kunden Service "
             },
