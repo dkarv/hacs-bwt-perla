@@ -5,11 +5,11 @@
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/dkarv/hacs-bwt-perla/blob/master/README.md",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "homekit": {},
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/dkarv/bwt_api/issues",
-  "requirements": ["bwt_api==0.4.1"],
+  "requirements": ["bwt_api==0.4.2"],
   "ssdp": [],
   "zeroconf": []
 }
