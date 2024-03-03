@@ -31,6 +31,25 @@ from .const import DOMAIN
 from .coordinator import BwtCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+_GLASS = "mdi:cup-water"
+_FAUCET = "mdi:faucet"
+_COUNTER = "mdi:counter"
+_WRENCH_CLOCK = "mdi:wrench-clock"
+_WRENCH_PERSON = "mdi:account-wrench"
+_WATER = "mdi:water"
+_WARNING = "mdi:alert-circle"
+_ERROR = "mdi:alert-decagram"
+_WATER_PLUS = "mdi:water-plus"
+_WATER_MINUS = "mdi:water-minus"
+_WATER_CHECK = "mdi:water-check"
+_PERCENTAGE = "mdi:percent"
+_DAYS_LEFT = "mdi:sort-numeric-descending-variant"
+_MASS = "mdi:weight"
+_TIME = "mdi:calendar-clock"
+_DAY = "mdi:calendar-today"
+_MONTH = "mdi:calendar-month"
+_YEAR = "mdi:calendar-blank-multiple"
+_HOLIDAY = "mdi:location-exit"
 
 
 async def async_setup_entry(
@@ -62,21 +81,31 @@ async def async_setup_entry(
             TotalOutputSensor(coordinator),
             ErrorSensor(coordinator),
             WarningSensor(coordinator),
-            SimpleSensor(coordinator, "hardness_in", lambda data: data.in_hardness.dH),
             SimpleSensor(
-                coordinator, "hardness_out", lambda data: data.out_hardness.dH
+                coordinator,
+                "hardness_in",
+                lambda data: data.in_hardness.dH,
+                _WATER_PLUS,
+            ),
+            SimpleSensor(
+                coordinator,
+                "hardness_out",
+                lambda data: data.out_hardness.dH,
+                _WATER_MINUS,
             ),
             DeviceClassSensor(
                 coordinator,
                 "customer_service",
                 lambda data: data.service_customer,
                 SensorDeviceClass.TIMESTAMP,
+                _WRENCH_CLOCK,
             ),
             DeviceClassSensor(
                 coordinator,
                 "technician_service",
                 lambda data: data.service_technician,
                 SensorDeviceClass.TIMESTAMP,
+                _WRENCH_PERSON,
             ),
             StateSensor(coordinator),
             UnitSensor(
@@ -84,40 +113,47 @@ async def async_setup_entry(
                 "regenerativ_level",
                 lambda data: data.regenerativ_level,
                 PERCENTAGE,
+                _PERCENTAGE,
             ),
             UnitSensor(
                 coordinator,
                 "regenerativ_days",
                 lambda data: data.regenerativ_days,
                 UnitOfTime.DAYS,
+                _DAYS_LEFT,
             ),
             UnitSensor(
                 coordinator,
                 "regenerativ_mass",
                 lambda data: data.regenerativ_total,
                 UnitOfMass.GRAMS,
+                _MASS,
             ),
             DeviceClassSensor(
                 coordinator,
                 "last_regeneration_1",
                 lambda data: data.regeneration_last_1,
                 SensorDeviceClass.TIMESTAMP,
+                _TIME,
             ),
             DeviceClassSensor(
                 coordinator,
                 "last_regeneration_2",
                 lambda data: data.regeneration_last_2,
                 SensorDeviceClass.TIMESTAMP,
+                _TIME,
             ),
             SimpleSensor(
                 coordinator,
                 "counter_regeneration_1",
                 lambda data: data.regeneration_count_1,
+                _COUNTER,
             ),
             SimpleSensor(
                 coordinator,
                 "counter_regeneration_2",
                 lambda data: data.regeneration_count_2,
+                _COUNTER,
             ),
             HolidayModeSensor(coordinator),
             HolidayStartSensor(coordinator),
@@ -127,6 +163,7 @@ async def async_setup_entry(
                 UnitOfVolume.LITERS,
                 SensorStateClass.TOTAL_INCREASING,
                 lambda data: data.treated_day,
+                _DAY,
             ),
             CalculatedSensor(
                 coordinator,
@@ -134,6 +171,7 @@ async def async_setup_entry(
                 UnitOfVolume.LITERS,
                 SensorStateClass.TOTAL_INCREASING,
                 lambda data: data.treated_month,
+                _MONTH,
             ),
             CalculatedSensor(
                 coordinator,
@@ -141,6 +179,7 @@ async def async_setup_entry(
                 UnitOfVolume.LITERS,
                 SensorStateClass.TOTAL_INCREASING,
                 lambda data: data.treated_year,
+                _YEAR,
             ),
             CalculatedSensor(
                 coordinator,
@@ -148,6 +187,7 @@ async def async_setup_entry(
                 UnitOfVolume.MILLILITERS,
                 SensorStateClass.MEASUREMENT,
                 lambda data: data.capacity_1,
+                _GLASS,
             ),
             CalculatedSensor(
                 coordinator,
@@ -155,20 +195,17 @@ async def async_setup_entry(
                 UnitOfVolume.MILLILITERS,
                 SensorStateClass.MEASUREMENT,
                 lambda data: data.capacity_2,
+                _GLASS,
             ),
             CurrentFlowSensor(coordinator),
         ]
     )
 
 
-WATER_ICON = "mdi:water"
-GAUGE_ICON = "mdi:gauge"
-
-
 class TotalOutputSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Total water [liter] that passed through the output."""
 
-    _attr_icon = WATER_ICON
+    _attr_icon = _WATER
     _attr_native_unit_of_measurement = UnitOfVolume.LITERS
     _attr_device_class = SensorDeviceClass.WATER
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -191,6 +228,7 @@ class CurrentFlowSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
 
     _attr_native_unit_of_measurement = UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
     _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = _FAUCET
     suggested_display_precision = 3
 
     def __init__(self, coordinator) -> None:
@@ -210,6 +248,8 @@ class CurrentFlowSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
 class ErrorSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Errors reported by the device."""
 
+    _attr_icon = _ERROR
+
     def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
         super().__init__(coordinator)
@@ -226,6 +266,8 @@ class ErrorSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
 
 class WarningSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Warnings reported by the device."""
+
+    _attr_icon = _WARNING
 
     def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
@@ -244,11 +286,14 @@ class WarningSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
 class SimpleSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Simplest sensor with least configuration options."""
 
-    def __init__(self, coordinator: BwtCoordinator, key: str, extract) -> None:
+    def __init__(
+        self, coordinator: BwtCoordinator, key: str, extract, icon: str | None = None
+    ) -> None:
         """Initialize the sensor with the common coordinator."""
         super().__init__(coordinator)
         self._attr_translation_key = key
         self._attr_unique_id = key
+        self._attr_icon = icon
         self._extract = extract
 
     @callback
@@ -267,22 +312,30 @@ class DeviceClassSensor(SimpleSensor):
         key: str,
         extract,
         device_class: SensorDeviceClass,
+        icon: str | None = None,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, key, extract)
         self._attr_device_class = device_class
+        self._attr_icon = icon
 
 
 class UnitSensor(SimpleSensor):
     """Sensor specifying a unit."""
 
     def __init__(
-        self, coordinator: BwtCoordinator, key: str, extract, unit: str
+        self,
+        coordinator: BwtCoordinator,
+        key: str,
+        extract,
+        unit: str,
+        icon: str | None = None,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, key, extract)
         self._attr_native_unit_of_measurement = unit
         self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_icon = icon
 
 
 class StateSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
@@ -290,6 +343,7 @@ class StateSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_options = list(BwtStatus.__members__)
+    _attr_icon = _WATER_CHECK
 
     def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
@@ -306,6 +360,8 @@ class StateSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
 
 class HolidayModeSensor(CoordinatorEntity[BwtCoordinator], BinarySensorEntity):
     """Current holiday mode state."""
+
+    _attr_icon = _HOLIDAY
 
     def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
@@ -324,6 +380,7 @@ class HolidayStartSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Future start of holiday mode if active."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_icon = _HOLIDAY
 
     def __init__(self, coordinator) -> None:
         """Initialize the sensor with the common coordinator."""
@@ -348,7 +405,6 @@ class CalculatedSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
     """Sensor calculating blended water from treated water."""
 
     suggested_display_precision = 0
-    suggested_unit_of_measurement = UnitOfVolume.LITERS
 
     def __init__(
         self,
@@ -357,6 +413,7 @@ class CalculatedSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
         unit: UnitOfVolume,
         stateClass: SensorStateClass,
         extract,
+        icon: str | None = None,
     ) -> None:
         """Initialize the sensor with the common coordinator."""
         super().__init__(coordinator)
@@ -364,6 +421,7 @@ class CalculatedSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
         self._attr_unique_id = self._attr_translation_key
         self._attr_native_unit_of_measurement = unit
         self._attr_state_class = stateClass
+        self._attr_icon = icon
         self._extract = extract
 
     @callback

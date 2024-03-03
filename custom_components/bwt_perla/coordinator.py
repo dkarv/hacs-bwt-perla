@@ -56,5 +56,5 @@ def calculate_update_interval(current_interval: timedelta | None, current_flow: 
         return timedelta(seconds=_UPDATE_INTERVAL_MAX)
     if current_interval.seconds >= _UPDATE_INTERVAL_MAX:
         return current_interval
-    # Increase the interval to max if there is no flow at the moment
+    # Increase the interval to max step by step if there is no flow at the moment
     return timedelta(seconds=min(_UPDATE_INTERVAL_MAX, current_interval.seconds * 2))
