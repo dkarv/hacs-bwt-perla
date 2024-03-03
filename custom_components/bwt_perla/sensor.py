@@ -157,27 +157,21 @@ async def async_setup_entry(
             ),
             HolidayModeSensor(coordinator),
             HolidayStartSensor(coordinator),
-            CalculatedSensor(
+            CalculatedWaterSensor(
                 coordinator,
                 "day_output",
-                UnitOfVolume.LITERS,
-                SensorStateClass.TOTAL_INCREASING,
                 lambda data: data.treated_day,
                 _DAY,
             ),
-            CalculatedSensor(
+            CalculatedWaterSensor(
                 coordinator,
                 "month_output",
-                UnitOfVolume.LITERS,
-                SensorStateClass.TOTAL_INCREASING,
                 lambda data: data.treated_month,
                 _MONTH,
             ),
-            CalculatedSensor(
+            CalculatedWaterSensor(
                 coordinator,
                 "year_output",
-                UnitOfVolume.LITERS,
-                SensorStateClass.TOTAL_INCREASING,
                 lambda data: data.treated_year,
                 _YEAR,
             ),
@@ -433,3 +427,26 @@ class CalculatedSensor(CoordinatorEntity[BwtCoordinator], SensorEntity):
             self.coordinator.data.out_hardness.dH,
         )
         self.async_write_ha_state()
+
+
+class CalculatedWaterSensor(CalculatedSensor):
+    """Sensor calculating blended water from treated water with DeviceClass.WATER."""
+
+    _attr_device_class = SensorDeviceClass.WATER
+
+    def __init__(
+        self,
+        coordinator,
+        key: str,
+        extract,
+        icon: str | None = None,
+    ) -> None:
+        """Initialize the sensor with the common coordinator."""
+        super().__init__(
+            coordinator,
+            key,
+            UnitOfVolume.LITERS,
+            SensorStateClass.TOTAL_INCREASING,
+            extract,
+            icon,
+        )
