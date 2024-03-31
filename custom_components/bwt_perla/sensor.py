@@ -219,25 +219,19 @@ async def async_setup_entry(
                 lambda data: data.treated_year,
                 _YEAR,
             ),
-            CalculatedSensor(
+            CalculatedCapacitySensor(
                 coordinator,
                 device_info,
                 config_entry.entry_id,
                 "capacity_1",
-                UnitOfVolume.MILLILITERS,
-                SensorStateClass.MEASUREMENT,
                 lambda data: data.capacity_1,
-                _GLASS,
             ),
-            CalculatedSensor(
+            CalculatedCapacitySensor(
                 coordinator,
                 device_info,
                 config_entry.entry_id,
                 "capacity_2",
-                UnitOfVolume.MILLILITERS,
-                SensorStateClass.MEASUREMENT,
                 lambda data: data.capacity_2,
-                _GLASS,
             ),
             CurrentFlowSensor(coordinator, device_info, config_entry.entry_id),
         ]
@@ -512,3 +506,36 @@ class CalculatedWaterSensor(CalculatedSensor):
             extract,
             icon,
         )
+
+
+class CalculatedCapacitySensor(BwtEntity, SensorEntity):
+    """Sensor calculating blended capacity from treated water."""
+
+    suggested_display_precision = 0
+
+    def __init__(
+        self,
+        coordinator,
+        device_info: DeviceInfo,
+        entry_id: str,
+        key: str,
+        extract,
+    ) -> None:
+        """Initialize the sensor with the common coordinator."""
+        super().__init__(coordinator, device_info, entry_id, key)
+        self._attr_native_unit_of_measurement = UnitOfVolume.LITERS
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_icon = _GLASS
+        self._extract = extract
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self._attr_native_value = self._extract(self.coordinator.data) / (
+            (
+                self.coordinator.data.in_hardness.dH
+                - self.coordinator.data.out_hardness.dH
+            )
+            * 1000.0
+        )
+        self.async_write_ha_state()

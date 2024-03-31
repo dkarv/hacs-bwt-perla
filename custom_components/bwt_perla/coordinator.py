@@ -5,6 +5,7 @@ from datetime import timedelta
 import logging
 
 from bwt_api.api import BwtApi
+from bwt_api.data import CurrentResponse
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -15,7 +16,7 @@ _UPDATE_INTERVAL_MIN = 1
 _UPDATE_INTERVAL_MAX = 30
 
 
-class BwtCoordinator(DataUpdateCoordinator):
+class BwtCoordinator(DataUpdateCoordinator[CurrentResponse]):
     """Bwt coordinator."""
 
     def __init__(self, hass: HomeAssistant, my_api: BwtApi) -> None:
