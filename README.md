@@ -20,7 +20,9 @@ _BWT Perla integration repository for [HACS](https://github.com/custom-component
 ### Firmware
 
 The firmware 2.02xx is still in public beta. It can be requested through the customer service by mail and will be remotely installed on your device.
+
 It looks like the customer service does not do the update on devices in the UK - it is still unclear why and what other countries are affected.
+
 For more details and recent news, check out the discussion in the [HomeAssistant forum](https://community.home-assistant.io/t/bwt-best-water-tech-nology-support/270745/9999).
 
 ### Entities
@@ -42,8 +44,3 @@ For more details and recent news, check out the discussion in the [HomeAssistant
 | capacity_1, capacity_2 | Capacity the columns have left of water with hardness_out |
 | day_output, month_output, year_output | The output of the current day, month and year. **This value sometimes is too low, but it is still unclear why. In general the total_output is more reliable.** [More information](https://github.com/dkarv/hacs-bwt-perla/issues/14) |
 | current_flow | The current flow rate. Please note that this value is not too reliable. Especially short flows might be completely missing, because this value is only queried every 30 seconds in the beginning. Only once a water flow is detected, it is queried more often. Once the flow is zero, the refresh rate cools down to 30 seconds. |
-
-and provide a reset cycle to get daily / ... values:
-
-<img src="https://github.com/dkarv/hacs-bwt-perla/assets/3708591/880e827b-b11e-4eb6-8f0e-bd683b50c0a2" height="256" >
-
