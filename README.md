@@ -6,9 +6,8 @@ _BWT Perla integration repository for [HACS](https://github.com/custom-component
 
 ### Requirements
 
-* Local API enabled
-    * available with firmware 2.02xx
-    * enabled in Settings > General > Connection
+* Firmware 2.02xx [(more info)](#firmware)
+* Local API enabled in Settings > General > Connection
 * "Login-Code" sent to you by mail during registration
 * local network connection (you need the ip address during setup)
 
@@ -17,6 +16,12 @@ _BWT Perla integration repository for [HACS](https://github.com/custom-component
 * Add this repository as user-defined repository in HACS
 * Setup integration and enter host / ip address and the "Login-Code"
 * Optional: set bwt total output as water source in the energy dashboard
+
+### Firmware
+
+The firmware 2.02xx is still in public beta. It can be requested through the customer service by mail and will be remotely installed on your device.
+It looks like the customer service does not do the update on devices in the UK - it is still unclear why and what other countries are affected.
+For more details and recent news, check out the discussion in the [HomeAssistant forum](https://community.home-assistant.io/t/bwt-best-water-tech-nology-support/270745/9999).
 
 ### Entities
 
@@ -35,16 +40,8 @@ _BWT Perla integration repository for [HACS](https://github.com/custom-component
 | last_regeneration_1, last_regeneration_2 | Last regeneration of column 1 or 2 |
 | counter_regeneration_1, counter_regeneration_2 | Total count of regenerations since initial device setup |
 | capacity_1, capacity_2 | Capacity the columns have left of water with hardness_out |
-| day_output, month_output, year_output | The output of the current day, month and year |
+| day_output, month_output, year_output | The output of the current day, month and year. **This value sometimes is too low, but it is still unclear why. In general the total_output is more reliable.** [More information](https://github.com/dkarv/hacs-bwt-perla/issues/14) |
 | current_flow | The current flow rate. Please note that this value is not too reliable. Especially short flows might be completely missing, because this value is only queried every 30 seconds in the beginning. Only once a water flow is detected, it is queried more often. Once the flow is zero, the refresh rate cools down to 30 seconds. |
-
-### Get monthly / daily / hourly / per 15 minute / ... water usage
-
-__This is not needed anymore as the integration now reports daily, monthly and yearly consumption.__
-
-You can setup a _Utility Meter_ in Home Assistant to calculate them:
-
-<img src="https://github.com/dkarv/hacs-bwt-perla/assets/3708591/f93f6c56-245b-42d7-83f4-0c652dd7268b" height="256" >
 
 and provide a reset cycle to get daily / ... values:
 
